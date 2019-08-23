@@ -62,7 +62,7 @@ abstract class FixerResponse implements Built<FixerResponse, FixerResponseBuilde
   Map<String, double> get rates;
 
   FixerResponse._();
-  factory FixerResponse([void Function(FixerResponseBuilder updates)]) = _$FixerResponse;
+  factory FixerResponse([void applyBuilder(FixerResponseBuilder updates)]) = _$FixerResponse;
 }
 
 @SerializersFor(const [
