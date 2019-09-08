@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
-import 'package:currencies/domain/entities.dart';
+import 'package:built_value/standard_json_plugin.dart';
 import 'package:dio/dio.dart';
 
 part 'fixer_api.g.dart';
@@ -17,26 +18,26 @@ class FixerApi {
 
   FixerApi(this._dio);
 
-  Future<FixerResponse> getHistoricalConversionRates(Currency base, List<Currency> targets, DateTime date) {
+  Future<FixerResponse> getHistoricalConversionRates(String baseCurrency, List<String> targetCurrencies, DateTime date) {
     String formattedDate = "${date.toIso8601String().substring(0,10)}";
-    return _getConversionRates(formattedDate, base, targets);
+    return _getConversionRates(formattedDate, baseCurrency, targetCurrencies);
   }
 
-  Future<FixerResponse> getLatestConversionRates(Currency base, List<Currency> targets) {
-    return _getConversionRates(_LATEST_ENDPOINT, base, targets);
+  Future<FixerResponse> getLatestConversionRates(String baseCurrency, List<String> targetCurrencies) {
+    return _getConversionRates(_LATEST_ENDPOINT, baseCurrency, targetCurrencies);
   }
 
-  Future<FixerResponse> _getConversionRates(String dateOrLatest, Currency base, List<Currency> targets) async {
+  Future<FixerResponse> _getConversionRates(String dateOrLatest, String baseCurrency, List<String> targetCurrencies) async {
     Response<String> response = await _dio.get(
       "$_BASE_URL/$dateOrLatest", 
       queryParameters: {
         "access_key": _API_KEY, 
-        "base": base.name, 
-        "symbols": targets.fold("", (acc, val) => "$acc,${val.name}")
+        "base": baseCurrency,
+        "symbols": targetCurrencies.join(",")
       }
     );
     if ([200, 203].contains(response.statusCode)) {
-      return _serializers.deserialize(json.decode(response.data));
+      return _serializers.deserializeWith(FixerResponse.serializer, json.decode(response.data));
     }
     throw new FixerHttpException(response.statusCode, response.data);
   }
@@ -54,12 +55,11 @@ abstract class FixerResponse implements Built<FixerResponse, FixerResponseBuilde
   static Serializer<FixerResponse> get serializer => _$fixerResponseSerializer;
 
   bool get success;
-  @nullable
-  bool get historical;
-  DateTime get date;
+  @nullable bool get historical;
+  String get date;
   int get timestamp;
   String get base;
-  Map<String, double> get rates;
+  BuiltMap<String, double> get rates;
 
   FixerResponse._();
   factory FixerResponse([void applyBuilder(FixerResponseBuilder updates)]) = _$FixerResponse;
@@ -69,4 +69,4 @@ abstract class FixerResponse implements Built<FixerResponse, FixerResponseBuilde
   FixerResponse
 ])
 
-Serializers _serializers = _$_serializers;
+Serializers _serializers = (_$_serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();
