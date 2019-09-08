@@ -17,11 +17,11 @@ void main() {
     fixerApi = FixerApi(dio);
     response = MockResponse();
     when(dio.get<String>(any, queryParameters: anyNamed("queryParameters"))).thenAnswer((_) => Future.value(response));
-    when(response.data).thenReturn(testResponse);
-    when(response.statusCode).thenReturn(200);
   });
 
   test("The request for the latest rates is constructed correctly", () {
+    when(response.statusCode).thenReturn(200);
+    when(response.data).thenReturn(testResponse);
     fixerApi.getLatestConversionRates("USD", ["CAD", "CHF", "EUR", "GBP"]);
     Map<String, dynamic> queryParams = verify(dio.get(
         argThat(endsWith("/latest")),
@@ -30,6 +30,15 @@ void main() {
     expect(queryParams["access_key"], isNotEmpty);
     expect(queryParams["base"], "USD");
     expect(queryParams["symbols"], "CAD,CHF,EUR,GBP");
+  });
+
+  test("The request for the latest rates throws exception if the http request is not successful", () {
+    when(response.statusCode).thenReturn(404);
+    when(response.data).thenReturn("TestError");
+    expect(
+        fixerApi.getLatestConversionRates("USD", ["CAD", "CHF", "EUR", "GBP"]),
+        throwsA(predicate((it) => (it is FixerHttpException && it.message == "TestError" && it.statusCode == 404)))
+    );
   });
 }
 
