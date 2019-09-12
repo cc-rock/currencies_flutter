@@ -36,7 +36,7 @@ class FixerApi {
         "symbols": targetCurrencies.join(",")
       }
     );
-    if ([200, 203].contains(response.statusCode)) {
+    if (response.statusCode == 200) {
       return _serializers.deserializeWith(FixerResponse.serializer, json.decode(response.data));
     }
     throw new FixerHttpException(response.statusCode, response.data);
