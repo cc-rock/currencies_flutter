@@ -2,7 +2,6 @@ import 'package:currencies/boundary/data/fixer_api.dart';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:test/test.dart' as prefix0;
 
 class MockDio extends Mock implements Dio {}
 class MockResponse extends Mock implements Response<String> {}
