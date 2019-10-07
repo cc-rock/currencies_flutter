@@ -16,22 +16,24 @@ class FixerConversionRateRepository implements ConversionRateRepository {
 
   @override
   Future<List<ConversionRate>> getLatestConversionRates(Currency base, List<Currency> targets) async {
-    FixerResponse response = await _fixerApi.getLatestConversionRates(base.name, targets.map((currency) => currency.name));
+    FixerResponse response = await _fixerApi.getLatestConversionRates(base.name, targets.map((currency) => currency.name).toList());
     return _convertResponse(response, base, targets);
   }
 
   List<ConversionRate> _convertResponse(FixerResponse response, Currency base, List<Currency> targets) {
     if (base.name != response.base) {
-      throw new Exception("Invalid fixer response: wrong base");
+      throw new FormatException("Invalid fixer response: wrong base");
     }
-    return response.rates.entries.map((entry) =>
+    return targets.map((target) {
+        double rate = response.rates[target.name];
+        if (rate == null) throw new Exception("Rate non found in response!");
         _ConversionRateImpl(
           base,
-          targets.singleWhere((currency) => currency.name == entry.key),
-          entry.value,
+          target,
+          rate,
           DateTime.parse(response.date)
-        )
-    ).toList();
+        );
+    }).toList();
   }
 
 }
@@ -51,15 +53,15 @@ class _ConversionRateImpl implements ConversionRate {
   );
 
   @override
-  Currency get from => null;
+  Currency get from => _from;
 
   @override
-  Currency get to => null;
+  Currency get to => _to;
 
   @override
-  DateTime get date => null;
+  DateTime get date => _date;
 
   @override
-  double get rate => null;
+  double get rate => _rate;
 
 }

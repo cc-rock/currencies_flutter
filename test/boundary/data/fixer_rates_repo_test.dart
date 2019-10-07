@@ -29,8 +29,8 @@ void main() {
     List<Currency> targets = [MockCurrency("TGT1"), MockCurrency("TGT2")];
     when(fixerApi.getLatestConversionRates("BASE", ["TGT1", "TGT2"])).thenAnswer((_) => Future.value(fixerResponse));
     expect(
-        await repo.getLatestConversionRates(base, targets),
-        throwsA(Exception("Invalid fixer response: wrong base"))
+        repo.getLatestConversionRates(base, targets),
+        throwsA(predicate((it) => (it is FormatException && it.message == "Invalid fixer response: wrong base")))
     );
   });
 
