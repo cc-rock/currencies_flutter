@@ -18,6 +18,11 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
     ]);
   }
 
+  @override
+  Future<Currency> getConverterBase() {
+    return Future.value(const _CurrencyImpl("EUR"));
+  }
+
 }
 
 class _CurrencyImpl implements Currency {

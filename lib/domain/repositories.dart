@@ -2,6 +2,7 @@ import 'entities.dart';
 
 abstract class CurrencyRepository {
   Future<List<Currency>> getCurrencies();
+  Future<Currency> getConverterBase();
 }
 
 abstract class ConversionRateRepository {
