@@ -11,7 +11,7 @@ part 'fixer_api.g.dart';
 class FixerApi {
 
   static const String _API_KEY = "b90617e77d89b12cfebeb90018c45b95";
-  static const String _BASE_URL = "https://data.fixer.io/api";
+  static const String _BASE_URL = "http://data.fixer.io/api";
   static const String _LATEST_ENDPOINT = "latest";
 
   Dio _dio;
@@ -44,7 +44,7 @@ class FixerApi {
 
 }
 
-class FixerHttpException {
+class FixerHttpException implements Exception {
   final int statusCode;
   final String message;
   FixerHttpException(this.statusCode, this.message);

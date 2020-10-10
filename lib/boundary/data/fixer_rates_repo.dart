@@ -27,7 +27,7 @@ class FixerConversionRateRepository implements ConversionRateRepository {
     return targets.map((target) {
         double rate = response.rates[target.name];
         if (rate == null) throw new Exception("Rate non found in response!");
-        _ConversionRateImpl(
+        return _ConversionRateImpl(
           base,
           target,
           rate,

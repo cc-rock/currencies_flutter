@@ -2,27 +2,28 @@ import 'package:currencies/screens/CurrencyConverter/CurrencyConverterViewState.
 import 'package:currencies/screens/CurrencyConverter/CurrencyConverterViewModel.dart';
 import 'package:flutter/material.dart';
 
+import '../Screen.dart';
 
-class CurrencyConverterScreen extends StreamBuilder<CurrencyConverterViewState> {
+class CurrencyConverterScreen extends Screen<CurrencyConverterViewState> {
 
-  CurrencyConverterViewModel _viewModel;
+  final CurrencyConverterViewModel _viewModel;
 
-  CurrencyConverterScreen(this._viewModel): super(
-    stream: _viewModel.stream,
-    initialData: _viewModel.currentState,
-    builder: (BuildContext context, AsyncSnapshot<CurrencyConverterViewState> snapshot) {
-      return Scaffold(
-          appBar: AppBar(
-            title: Text('Currency Converter'),
-          ),
-          body: _buildBody(snapshot)
-      );
-    }
-  );
+  CurrencyConverterScreen(this._viewModel) : super(_viewModel);
 
-  static Widget _buildBody(AsyncSnapshot<CurrencyConverterViewState> snapshot) {
+  Widget buildWidget(BuildContext context, AsyncSnapshot<CurrencyConverterViewState> snapshot) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Currency Converter'),
+        ),
+        body: _buildBody(snapshot)
+    );
+  }
+
+  Widget _buildBody(AsyncSnapshot<CurrencyConverterViewState> snapshot) {
     if (snapshot.hasError) {
       return _buildBodyForError(snapshot.error);
+    } else if (snapshot.hasData && snapshot.data.errorMessage != null) {
+      return _buildBodyForError(snapshot.data.errorMessage);
     } else if (snapshot.hasData && !snapshot.data.loading) {
       return _buildBodyForState(snapshot.data);
     } else {
@@ -30,20 +31,20 @@ class CurrencyConverterScreen extends StreamBuilder<CurrencyConverterViewState> 
     }
   }
 
-  static Widget _buildBodyForError(Object error) {
+  Widget _buildBodyForError(Object error) {
     return Center(
       child: Text("ERROR: ${error.toString()}"),
     );
   }
 
-  static Widget _buildBodyForLoading() {
+  Widget _buildBodyForLoading() {
     return Center(
       child: CircularProgressIndicator(),
     );
   }
 
 
-  static Widget _buildBodyForState(CurrencyConverterViewState state) {
+  Widget _buildBodyForState(CurrencyConverterViewState state) {
     return Column(
       children: <Widget>[
         Expanded(child: Container()),
@@ -51,13 +52,18 @@ class CurrencyConverterScreen extends StreamBuilder<CurrencyConverterViewState> 
           child: FractionallySizedBox(
             widthFactor: 0.6,
             child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(state.inputTextLabel, textAlign: TextAlign.center),
-                ),
-                Expanded(child: TextField(textAlign: TextAlign.center))
-              ]
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(state.inputTextLabel, textAlign: TextAlign.center),
+                  ),
+                  Expanded(child: TextField(
+                      textAlign: TextAlign.center,
+                      onChanged: (text) {
+                        _viewModel.onAmountTextChanged(text);
+                      },
+                  ))
+                ]
             ),
           ),
         ),
@@ -100,7 +106,7 @@ class CurrencyConverterScreen extends StreamBuilder<CurrencyConverterViewState> 
         ),
         Expanded(child: Container()),
         RaisedButton(
-          child: Text("Compare")
+            child: Text("Compare")
         )
       ],
     );

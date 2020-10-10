@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:currencies/boundary/data/currency_repo.dart';
 import 'package:currencies/boundary/data/fixer_api.dart';
 import 'package:currencies/boundary/data/fixer_rates_repo.dart';
@@ -22,11 +24,12 @@ Injector createInjector() {
   injector.registerDependency<CurrencyConverterViewModel>((i) =>
       CurrencyConverterViewModel(
           i.getDependency<CurrencyRepository>(),
-          i.getDependency<ConversionRateRepository>()
+          i.getDependency<ConversionRateRepository>(),
+          () => StreamController()
       )
   );
 
-  injector.registerDependency<CurrencyConverterScreen>((i) => CurrencyConverterScreen(i.getDependency<CurrencyConverterViewModel>()));
+  injector.registerSingleton<CurrencyConverterScreen>((i) => CurrencyConverterScreen(i.getDependency<CurrencyConverterViewModel>()));
 
   return injector;
 }

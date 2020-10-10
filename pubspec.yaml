@@ -23,7 +23,7 @@ dependencies:
   built_value: 7.1.0
   built_collection: 4.3.2
   injector: 1.0.8
-  rxdart: 0.24.1
+  async: 2.4.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
